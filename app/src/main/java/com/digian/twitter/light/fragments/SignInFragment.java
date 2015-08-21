@@ -1,7 +1,9 @@
 package com.digian.twitter.light.fragments;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,8 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
  * Created by forrestal on 21/08/2015.
  */
 public class SignInFragment extends Fragment {
+
+    private static final String TAG = SignInFragment.class.getSimpleName();
 
     private TwitterLoginButton loginButton;
 
@@ -46,13 +50,24 @@ public class SignInFragment extends Fragment {
         loginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-                // Do something with result, which provides a TwitterSession for making API calls
+                Log.d(TAG, "Success - I have signed in yippee!");
             }
 
             @Override
             public void failure(TwitterException exception) {
-                // Do something on failure
+                Log.e(TAG, "Failure - something went wrong yikes!", exception);
             }
         });
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult" );
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Pass the activity result to the login button.
+        loginButton.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 }

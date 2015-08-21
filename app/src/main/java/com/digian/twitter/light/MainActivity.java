@@ -4,17 +4,23 @@ package com.digian.twitter.light;
  * Created by forrestal on 20/08/2015.
  */
 
+import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.digian.twitter.light.fragments.SignInFragment;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
     private static final String TWITTER_KEY = "gkQPY641YDB2lVnyJ1aMyYfWj";
@@ -63,5 +69,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult called");
+
+        // Pass the activity result to the fragment, which will then pass the result to the login
+        // button.
+        Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            Log.d(TAG, "Passing result back to the sign in fragment");
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }
