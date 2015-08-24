@@ -7,6 +7,9 @@ package com.digian.twitter.light;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CheckResult;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,11 +18,14 @@ import android.view.MenuItem;
 
 import com.digian.twitter.light.fragments.SignInFragment;
 import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
 
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TwitterSignInCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -28,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TWITTER_SECRET = "2tbrFaaDQYCsNxhXeTcFWZVQAB1qypIZI31JQwSItVj564YS9r";
 
     /**
-     *
      * @param savedInstanceState
      */
     @Override
@@ -42,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param menu - inflate the menu; this adds items to the action bar if it is present.
      * @return - true if consumed etc.
      */
@@ -53,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param item which is clicked in actionbar/toolbar
      * @return whether consumed etc..
      */
@@ -70,17 +73,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Callbach from Fabric Twitter Sign In call
+     * Callback from Fabric Twitter Sign In call
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d(TAG, "onActivityResult(int requestCode, int resultCode, Intent data)");
         Log.d(TAG, "requestCode: " + requestCode);
-        Log.d(TAG, "resultCode: "+resultCode);
-        Log.d(TAG, "data: "+data.getAction());
-
-        Log.d(TAG, "onActivityResult called");
+        Log.d(TAG, "resultCode: " + resultCode);
 
         // Pass the activity result to the fragment, which will then pass the result to the login button.
         Fragment fragment = getCurrentFragment();
@@ -90,13 +94,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Utility method to get current fragment and also used for test classes hence package private visibility
+     *
+     * @return active fragment
+     */
     @VisibleForTesting
+    @CheckResult
+    @Nullable
     Fragment getCurrentFragment() {
         return getFragmentManager().findFragmentById(android.R.id.content);
     }
 
+    /**
+     * Set fragment - used for tests/spys etc.
+     *
+     * @param fragment
+     */
     @VisibleForTesting
-    void setCurrentFragment(Fragment fragment) {
-        getFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();;
+    void setCurrentFragment(@NonNull Fragment fragment) {
+        getFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();
+    }
+
+    /**
+     * Returns Twitter session of now logged in user
+     * <p/>
+     * The active session is automatically persisted, but can be retrieved again from below:
+     * <p/>
+     * TwitterSession session = Twitter.getSessionManager().getActiveSession();
+     * TwitterAuthToken authToken = session.getAuthToken();
+     * String token = authToken.token;
+     * String secret = authToken.secret;
+     *
+     * @param result active Twitter session
+     */
+    @Override
+    public void signInSuccess(@NonNull Result<TwitterSession> result) {
+        Log.d(TAG, "signInSuccess(Result<TwitterSession> result)");
+    }
+
+    @Override
+    public void signInFailure(@NonNull TwitterException exception) {
+        Log.e(TAG, "signInFailure(TwitterException exception)", exception);
     }
 }

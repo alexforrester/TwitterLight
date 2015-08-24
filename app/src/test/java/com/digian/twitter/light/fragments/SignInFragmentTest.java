@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import com.digian.twitter.light.BuildConfig;
-import com.digian.twitter.light.ConstantsTest;
+import com.digian.twitter.light.TestConstants;
 import com.digian.twitter.light.CustomRobolectricRunner;
 import com.digian.twitter.light.MainActivity;
 import com.digian.twitter.light.OutlineShadow;
@@ -35,25 +35,31 @@ public class SignInFragmentTest extends TestCase {
 
     @Before
     public void setUp() {
-
         mClassUnderTest = SignInFragment.newInstance();
-        //Cannot test Fragment in Isolation as Fabric needs to have been initialised
-        startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
     }
 
     @Test
     public void testUIDisplayedCorrectlyWithTwitterLoginButtonInflated() {
+        //Cannot test Fragment in Isolation as Fabric needs to have been initialised
+        startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
         assertNotNull(mClassUnderTest.getLoginButton());
     }
 
     @Test
     public void testOnActivityResultInFragmentCallsLoginButtonOnActivityResult() throws Exception {
+        //Cannot test Fragment in Isolation as Fabric needs to have been initialised
+        startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
         TwitterLoginButton twitterLoginButton = spy(new TwitterLoginButton(mClassUnderTest.getActivity()));
         mClassUnderTest.setLoginButton(twitterLoginButton);
         Intent intent = mock(Intent.class);
 
-        mClassUnderTest.onActivityResult(ConstantsTest.REQUEST_CODE, ConstantsTest.RESULT_CODE, intent);
+        mClassUnderTest.onActivityResult(TestConstants.REQUEST_CODE, TestConstants.RESULT_CODE, intent);
 
-        verify(twitterLoginButton, times(1)).onActivityResult(ConstantsTest.REQUEST_CODE, ConstantsTest.RESULT_CODE, intent);
+        verify(twitterLoginButton, times(1)).onActivityResult(TestConstants.REQUEST_CODE, TestConstants.RESULT_CODE, intent);
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void testonAttachThrowsClassCastExceptionIfParentActivityDoesntImplementTwitterSignInCallback(){
+        startFragment(mClassUnderTest);
     }
 }

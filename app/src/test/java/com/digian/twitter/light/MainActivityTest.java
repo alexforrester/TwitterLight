@@ -36,23 +36,28 @@ public class MainActivityTest{
     }
 
     @Test
-    public void testActivitySetUpCorrectly() throws Exception {
+    public void testActivitySetUpCorrectly() {
         assertTrue(mClassUnderTest != null);
     }
 
     @Test
-    public void testActivityHasSignInFragmentDisplayedInitially() throws Exception {
+    public void testActivityHasSignInFragmentDisplayedInitially() {
         Fragment firstFragmentAdded = mClassUnderTest.getFragmentManager().findFragmentById(android.R.id.content);
         assertTrue(firstFragmentAdded instanceof SignInFragment);
     }
 
     @Test
-    public void testOnActivityResultInActivityCallsSignInFragmentOnActivityResult() throws Exception {
+    public void testOnActivityResultInActivityCallsSignInFragmentOnActivityResult() {
         Fragment signInFragment = spy(mClassUnderTest.getCurrentFragment());
         Intent intent = mock(Intent.class);
         mClassUnderTest.setCurrentFragment(signInFragment);
 
-        mClassUnderTest.onActivityResult(ConstantsTest.REQUEST_CODE, ConstantsTest.RESULT_CODE, intent);
-        verify(signInFragment, times(1)).onActivityResult(ConstantsTest.REQUEST_CODE, ConstantsTest.RESULT_CODE, intent);
+        mClassUnderTest.onActivityResult(TestConstants.REQUEST_CODE, TestConstants.RESULT_CODE, intent);
+        verify(signInFragment, times(1)).onActivityResult(TestConstants.REQUEST_CODE, TestConstants.RESULT_CODE, intent);
+    }
+
+    @Test
+    public void testMainActivityImplementsTwitterSignInCallback()  {
+        assertTrue(mClassUnderTest instanceof TwitterSignInCallback);
     }
 }

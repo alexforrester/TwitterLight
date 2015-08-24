@@ -1,5 +1,7 @@
 package com.digian.twitter.light;
 
+import android.os.Build;
+
 import org.junit.runners.model.InitializationError;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
@@ -10,7 +12,7 @@ import java.lang.reflect.Method;
  * Created by forrestal on 23/08/2015.
  */
 public class CustomRobolectricRunner extends RobolectricGradleTestRunner {
-    private static final int MAX_SDK_LEVEL = 21;
+    private static final int MAX_SDK_LEVEL = Build.VERSION_CODES.LOLLIPOP;
     private int[] sdk = {21};
 
     public CustomRobolectricRunner(Class<?> klass) throws InitializationError {
