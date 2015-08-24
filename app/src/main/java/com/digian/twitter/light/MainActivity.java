@@ -17,13 +17,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.digian.twitter.light.fragments.SignInFragment;
-import com.twitter.sdk.android.Twitter;
+import com.digian.twitter.light.fragments.UserTimelineFragment;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 import io.fabric.sdk.android.Fabric;
+import io.fabric.sdk.android.Kit;
 
 public class MainActivity extends AppCompatActivity implements TwitterSignInCallback {
 
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
-        Fabric.with(this, new Twitter(authConfig));
+        Fabric.with(this,  new Kit[]{new TwitterCore(authConfig),new TweetComposer()});
 
         //Load IntroFragment
         getFragmentManager().beginTransaction().replace(android.R.id.content, SignInFragment.newInstance()).commit();
@@ -116,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         getFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();
     }
 
+
     /**
      * Returns Twitter session of now logged in user
      * <p/>
@@ -131,6 +135,15 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     @Override
     public void signInSuccess(@NonNull Result<TwitterSession> result) {
         Log.d(TAG, "signInSuccess(Result<TwitterSession> result)");
+
+        Bundle bundle = new Bundle();
+
+        if (result != null) {
+            bundle.putLong(UserTimelineFragment.TWITTER_SESSION_USER_ID, result.data.getUserId());
+            bundle.putString(UserTimelineFragment.TWITTER_SESSION_USER_NAME, result.data.getUserName());
+        }
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content, UserTimelineFragment.newInstance(bundle)).commit();
     }
 
     @Override

@@ -39,14 +39,14 @@ public class SignInFragmentTest extends TestCase {
     }
 
     @Test
-    public void testUIDisplayedCorrectlyWithTwitterLoginButtonInflated() {
+    public void verifyUIDisplayedCorrectlyWithTwitterLoginButtonInflated() {
         //Cannot test Fragment in Isolation as Fabric needs to have been initialised
         startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
         assertNotNull(mClassUnderTest.getLoginButton());
     }
 
     @Test
-    public void testOnActivityResultInFragmentCallsLoginButtonOnActivityResult() throws Exception {
+    public void onActivityResultInFragmentCallsLoginButtonOnActivityResult() throws Exception {
         //Cannot test Fragment in Isolation as Fabric needs to have been initialised
         startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
         TwitterLoginButton twitterLoginButton = spy(new TwitterLoginButton(mClassUnderTest.getActivity()));
@@ -59,7 +59,7 @@ public class SignInFragmentTest extends TestCase {
     }
 
     @Test(expected = ClassCastException.class)
-    public void testonAttachThrowsClassCastExceptionIfParentActivityDoesntImplementTwitterSignInCallback(){
+    public void onAttachThrowsClassCastExceptionIfParentActivityDoesntImplementTwitterSignInCallback(){
         startFragment(mClassUnderTest);
     }
 }
