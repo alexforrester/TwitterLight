@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
@@ -15,6 +16,7 @@ import com.digian.twitter.light.R;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.digian.twitter.light.presenters.HomeTimelinePresenterImpl;
 import com.digian.twitter.light.views.TimelineView;
+import com.twitter.sdk.android.tweetui.TweetViewAdapter;
 
 /**
  * Created by forrestal on 24/08/2015.
@@ -25,9 +27,11 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
 
     private HomeTimelinePresenter mHomeTimelinePresenter;
     private ProgressBar mProgressBar;
+    private Button refreshButton;
 
     /**
      * Create new instance of UserTimelineFragment passing in any args
+     *
      * @param args
      * @return new instance of UserTimelineFragment
      */
@@ -41,10 +45,11 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     /**
      * Default Constructor
      */
-    public HomeTimelineFragment() {}
+    public HomeTimelineFragment() {
+    }
 
     /**
-     Set-up
+     * Set-up
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +70,6 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_timeline, container, false);
     }
 
@@ -80,11 +84,18 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated(Bundle savedInstanceState)");
 
+        refreshButton = (Button) getActivity().findViewById(R.id.refresh_list);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHomeTimelinePresenter.updateTimeline(HomeTimelineFragment.this.getActivity());
+            }
+        });
+
         if (savedInstanceState != null) {
             Log.d(TAG, "savedInstanceState != null");
             initialiseUserTimelinePresenter(savedInstanceState);
-        }
-        else {
+        } else {
             Log.d(TAG, "savedInstanceState == null");
             initialiseUserTimelinePresenter(getArguments());
         }
@@ -103,12 +114,22 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     /**
      * This is the overridden method from the TimelineView so the presenter can update the view
      * through the interface
+     *
      * @param adapter
      */
     @Override
     public void displayUserTweetList(ListAdapter adapter) {
         Log.d(TAG, "displayUserTweetList(ListAdapter adapter)");
         setListAdapter(adapter);
+    }
+
+    @Override
+    public void updateUserTweetList(ListAdapter adapter) {
+        Log.d(TAG, "updateUserTweetList(ListAdapter adapter)");
+        setListAdapter(adapter);
+
+        TweetViewAdapter tweetViewAdapter = (TweetViewAdapter) getListAdapter();
+        tweetViewAdapter.notifyDataSetChanged();
     }
 
     @VisibleForTesting
@@ -119,13 +140,13 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
 
     @VisibleForTesting
     void createHomeTimeline() {
-        Log.d(TAG,"createHomeTimeline()");
+        Log.d(TAG, "createHomeTimeline()");
         mHomeTimelinePresenter.createTimeline(this.getActivity());
     }
 
     @VisibleForTesting
     void initialiseUserTimelinePresenter(Bundle bundle) {
-        Log.d(TAG,"initialiseUserTimelinePresenter(Bundle bundle)");
+        Log.d(TAG, "initialiseUserTimelinePresenter(Bundle bundle)");
         mHomeTimelinePresenter.init(bundle);
     }
 }

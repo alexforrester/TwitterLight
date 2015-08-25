@@ -13,4 +13,5 @@ public interface HomeTimelinePresenter {
 
     void init(Bundle bundle);
     void createTimeline(Context context);
+    void updateTimeline(Context context);
 }

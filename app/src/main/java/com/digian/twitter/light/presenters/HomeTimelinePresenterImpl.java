@@ -87,6 +87,32 @@ public class HomeTimelinePresenterImpl implements HomeTimelinePresenter {
 
     }
 
+    @Override
+    public void updateTimeline(final Context context) {
+        Log.d(TAG, "createTimeline(Context context)");
+
+        StatusesService statusesService = TwitterCore.getInstance().getApiClient().getStatusesService();
+        final int count = 21;
+        //The count specified is up to the amount of the specified count number. In practice it returns -1 (less than) the specified count number
+        statusesService.homeTimeline(count, null, null, null, null, null, null, new Callback<List<Tweet>>() {
+                    @Override
+                    public void success(Result<List<Tweet>> result) {
+                        Log.d(TAG, "success(Result<List<Tweet>> result)");
+
+                        //Suggested to use 'FixedTweetTime' however this class is not in the Fabric sdk although it is mentioned here:
+                        // - http://docs.fabric.io/android/twitter/show-tweets.html#tweet-list-adapters
+                        final TweetViewAdapter adapter = new TweetViewAdapter(context);
+                        adapter.setTweets(result.data);
+                        timelineView.updateUserTweetList(adapter);
+                    }
+
+                    @Override
+                    public void failure(TwitterException exception) {
+                        Log.e(TAG, "failure(TwitterException exception)", exception);
+                    }
+                }
+        );
+    }
 
     /**
      * Setting bundle of user details (userId and userName (Twitter screenName)

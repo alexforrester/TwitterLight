@@ -3,4 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="refresh_list" >REFRESH</string>
+    <string name="post_tweet" >TWEET</string>
+
 </resources>
