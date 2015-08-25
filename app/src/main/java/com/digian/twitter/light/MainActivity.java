@@ -16,14 +16,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.digian.twitter.light.fragments.HomeTimelineFragment;
 import com.digian.twitter.light.fragments.SignInFragment;
-import com.digian.twitter.light.fragments.UserTimelineFragment;
+import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
+import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
 import io.fabric.sdk.android.Kit;
@@ -43,10 +45,14 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
-        Fabric.with(this,  new Kit[]{new TwitterCore(authConfig),new TweetComposer()});
+        setUpFabricKits(authConfig);
 
-        //Load IntroFragment
-        getFragmentManager().beginTransaction().replace(android.R.id.content, SignInFragment.newInstance()).commit();
+        setContentView(R.layout.fragment_container);
+
+        if (savedInstanceState == null) {
+            //Load IntroFragment
+            getFragmentManager().beginTransaction().add(R.id.fragment_container, SignInFragment.newInstance()).commit();
+        }
     }
 
     /**
@@ -106,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     @CheckResult
     @Nullable
     Fragment getCurrentFragment() {
-        return getFragmentManager().findFragmentById(android.R.id.content);
+        return getFragmentManager().findFragmentById(R.id.fragment_container);
     }
 
     /**
@@ -116,7 +122,12 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
      */
     @VisibleForTesting
     void setCurrentFragment(@NonNull Fragment fragment) {
-        getFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+    }
+
+    @VisibleForTesting
+    void setUpFabricKits(TwitterAuthConfig authConfig) {
+        Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetComposer(), new TweetUi()});
     }
 
 
@@ -139,11 +150,11 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         Bundle bundle = new Bundle();
 
         if (result != null) {
-            bundle.putLong(UserTimelineFragment.TWITTER_SESSION_USER_ID, result.data.getUserId());
-            bundle.putString(UserTimelineFragment.TWITTER_SESSION_USER_NAME, result.data.getUserName());
+            bundle.putLong(HomeTimelinePresenter.TWITTER_SESSION_USER_ID, result.data.getUserId());
+            bundle.putString(HomeTimelinePresenter.TWITTER_SESSION_USER_NAME, result.data.getUserName());
         }
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, UserTimelineFragment.newInstance(bundle)).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).commit();
     }
 
     @Override

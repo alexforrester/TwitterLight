@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -36,6 +37,14 @@ public class SignInFragmentTest extends TestCase {
     @Before
     public void setUp() {
         mClassUnderTest = SignInFragment.newInstance();
+        ShadowLog.stream = System.out;
+    }
+
+    @Test
+    public void basicTestToCheckFragmentIsInitialisedCorrectly() {
+        //Cannot test Fragment in Isolation as Fabric needs to have been initialised
+        startFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass());
+        assertNotNull("Fragment has not been created correctly", mClassUnderTest);
     }
 
     @Test

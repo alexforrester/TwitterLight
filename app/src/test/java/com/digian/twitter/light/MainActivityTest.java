@@ -42,7 +42,7 @@ public class MainActivityTest{
 
     @Test
     public void testActivityHasSignInFragmentDisplayedInitially() {
-        Fragment firstFragmentAdded = mClassUnderTest.getFragmentManager().findFragmentById(android.R.id.content);
+        Fragment firstFragmentAdded = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
         assertTrue(firstFragmentAdded instanceof SignInFragment);
     }
 
