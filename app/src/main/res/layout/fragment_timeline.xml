@@ -19,8 +19,8 @@
             android:layout_width="0dp"
             android:layout_marginLeft="14dp"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="14dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_height="match_parent"
             android:text="@string/refresh_list"
             android:layout_weight="1" />
@@ -30,8 +30,8 @@
             android:layout_width="0dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="14dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="14dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_height="match_parent"
             android:text="@string/post_tweet"
             android:layout_weight="1" />
