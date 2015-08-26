@@ -58,7 +58,7 @@ public class SignInFragment extends Fragment {
     }
 
     /**
-     * Attach parent activity with check for impleentation of interfaces
+     * Attach parent activity with check for implementation of interfaces
      * @param activity
      */
     @Override

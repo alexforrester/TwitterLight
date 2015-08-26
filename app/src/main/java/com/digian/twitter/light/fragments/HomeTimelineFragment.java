@@ -1,5 +1,6 @@
 package com.digian.twitter.light.fragments;
 
+import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,9 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListAdapter;
-import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.digian.twitter.light.R;
+import com.digian.twitter.light.TweetComposerCallback;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.digian.twitter.light.presenters.HomeTimelinePresenterImpl;
 import com.digian.twitter.light.views.TimelineView;
@@ -26,8 +28,9 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     private static final String TAG = HomeTimelineFragment.class.getSimpleName();
 
     private HomeTimelinePresenter mHomeTimelinePresenter;
-    private ProgressBar mProgressBar;
     private Button refreshButton;
+    private Button tweetButton;
+    private TweetComposerCallback tweetComposerCallback;
 
     /**
      * Create new instance of UserTimelineFragment passing in any args
@@ -46,6 +49,20 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
      * Default Constructor
      */
     public HomeTimelineFragment() {
+    }
+
+    /**
+     * Attach parent activity with check for implementation of interfaces
+     * @param activity
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            tweetComposerCallback = (TweetComposerCallback) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement TweetComposerCallback");
+        }
     }
 
     /**
@@ -92,6 +109,14 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
             }
         });
 
+        tweetButton = (Button) getActivity().findViewById(R.id.post_tweet);
+        tweetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tweetComposerCallback.displayTweetComposer();
+            }
+        });
+
         if (savedInstanceState != null) {
             Log.d(TAG, "savedInstanceState != null");
             initialiseUserTimelinePresenter(savedInstanceState);
@@ -130,6 +155,12 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
 
         TweetViewAdapter tweetViewAdapter = (TweetViewAdapter) getListAdapter();
         tweetViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void displayError(String error) {
+        Log.d(TAG, "Display Error: "+error);
+        Toast.makeText(getActivity(),error,Toast.LENGTH_LONG).show();
     }
 
     @VisibleForTesting

@@ -60,4 +60,9 @@ public class MainActivityTest{
     public void testMainActivityImplementsTwitterSignInCallback()  {
         assertTrue(mClassUnderTest instanceof TwitterSignInCallback);
     }
+
+    @Test
+    public void testMainActivityImplementsTweetComposerCallback()  {
+        assertTrue(mClassUnderTest instanceof TweetComposerCallback);
+    }
 }

@@ -7,7 +7,9 @@ import android.os.Bundle;
 
 import com.digian.twitter.light.BuildConfig;
 import com.digian.twitter.light.CustomRobolectricRunner;
+import com.digian.twitter.light.MainActivity;
 import com.digian.twitter.light.OutlineShadow;
+import com.digian.twitter.light.R;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.digian.twitter.light.views.TimelineView;
 import com.twitter.sdk.android.tweetui.TweetViewAdapter;
@@ -17,11 +19,11 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 
-import static org.robolectric.util.FragmentTestUtil.startFragment;
 import static org.robolectric.util.FragmentTestUtil.startVisibleFragment;
 
 /**
@@ -33,7 +35,6 @@ public class HomeTimelineFragmentTest extends TestCase {
 
     private static final String A_SAMPLE_STRING_KEY = "A_SAMPLE_STRING_KEY";
     private static final String A_SAMPLE_STRING_VALUE = "A_SAMPLE_STRING_VALUE";
-    private static final String FRAGMENT_TAG = "UserTimelineFragment";
 
     HomeTimelineFragment mClassUnderTest;
 
@@ -47,7 +48,7 @@ public class HomeTimelineFragmentTest extends TestCase {
     public void fragmentIsCreatedCorrectly() throws Exception {
         mClassUnderTest = HomeTimelineSubFragment.newInstance(new Bundle());
 
-        startVisibleFragment(mClassUnderTest);
+        startVisibleFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
         assertNotNull("Fragment should not be null at this point", mClassUnderTest);
     }
 
@@ -64,7 +65,7 @@ public class HomeTimelineFragmentTest extends TestCase {
     @Test
     public void onCreateCallbackSetsPresenter() throws Exception {
         mClassUnderTest = HomeTimelineSubFragment.newInstance(new Bundle());
-        startVisibleFragment(mClassUnderTest);
+        startVisibleFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
 
         assertTrue("Presenter should be non null", mClassUnderTest.getHomeTimelinePresenter() != null);
     }
@@ -75,7 +76,7 @@ public class HomeTimelineFragmentTest extends TestCase {
 
         assertFalse("create home time should not have been called yet", classUnderTest.isCreateHomeTimelineCalled());
 
-        startVisibleFragment(classUnderTest);
+        startVisibleFragment(classUnderTest,Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
         assertTrue("home time line should now have been called", classUnderTest.isCreateHomeTimelineCalled());
     }
 
@@ -83,7 +84,7 @@ public class HomeTimelineFragmentTest extends TestCase {
     public void verifyOnActivityCreatedPassesSameBundleToPresenterInitMethod() throws Exception {
         Bundle bundle = new Bundle();
         HomeTimelineSubFragment classUnderTest = HomeTimelineSubFragment.newInstance(bundle);
-        startFragment(classUnderTest);
+        startVisibleFragment(classUnderTest,Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
         assertSame("The bundle passed into HomeTimeline should be the same as passed to the presenter", bundle, classUnderTest.getTestBundle());
     }
 
@@ -97,12 +98,12 @@ public class HomeTimelineFragmentTest extends TestCase {
         //Creating subclass to get round issues with activity.recreate() ignoring mocks set on previous fragment etc.
         HomeTimelineSubFragment classUnderTest = HomeTimelineSubFragment.newInstance(bundle);
 
-        startVisibleFragment(classUnderTest);
+        startVisibleFragment(classUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
         Activity activity = classUnderTest.getActivity();
 
         activity.recreate();
 
-        HomeTimelineFragment recreatedFragment = ((HomeTimelineSubFragment)activity.getFragmentManager().findFragmentById(1));
+        HomeTimelineFragment recreatedFragment = ((HomeTimelineSubFragment)activity.getFragmentManager().findFragmentById(R.id.fragment_container));
 
         assertNotNull("fragment should be recreated correctly",recreatedFragment);
         assertNotSame("the two fragments although having same restored data should be two distinct objects", classUnderTest, recreatedFragment);
@@ -116,7 +117,7 @@ public class HomeTimelineFragmentTest extends TestCase {
     public void fragmentIsSetupAsListFragment() throws Exception {
 
         HomeTimelineSubFragment classUnderTest = HomeTimelineSubFragment.newInstance(new Bundle());
-        startVisibleFragment(classUnderTest);
+        startVisibleFragment(classUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
 
         assertTrue("fragment should be instanceof ListFragment", classUnderTest instanceof ListFragment);
         assertNull("adapter should initially be null", classUnderTest.getListAdapter());
@@ -126,7 +127,7 @@ public class HomeTimelineFragmentTest extends TestCase {
     public void testTimelineViewSetUpCorrectly(){
 
         HomeTimelineSubFragment classUnderTest = HomeTimelineSubFragment.newInstance(new Bundle());
-        startVisibleFragment(classUnderTest);
+        startVisibleFragment(classUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
 
         TimelineView timelineView = ((TimelineView) classUnderTest);
         timelineView.displayUserTweetList( new TweetViewAdapter(RuntimeEnvironment.application));

@@ -15,9 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.digian.twitter.light.fragments.HomeTimelineFragment;
 import com.digian.twitter.light.fragments.SignInFragment;
+import com.digian.twitter.light.fragments.TweetComposerFragment;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
@@ -30,7 +32,7 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 import io.fabric.sdk.android.Fabric;
 import io.fabric.sdk.android.Kit;
 
-public class MainActivity extends AppCompatActivity implements TwitterSignInCallback {
+public class MainActivity extends AppCompatActivity implements TwitterSignInCallback, TweetComposerCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -130,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetComposer(), new TweetUi()});
     }
 
-
     /**
      * Returns Twitter session of now logged in user
      * <p/>
@@ -154,11 +155,23 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
             bundle.putString(HomeTimelinePresenter.TWITTER_SESSION_USER_NAME, result.data.getUserName());
         }
 
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).addToBackStack(null).commit();
     }
 
     @Override
     public void signInFailure(@NonNull TwitterException exception) {
         Log.e(TAG, "signInFailure(TwitterException exception)", exception);
+        Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayTweetComposer() {
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, TweetComposerFragment.newInstance()).commit();
+    }
+
+    @Override
+    public void showUpdatedTimeline() {
+        Log.d(TAG, "Show updated timeline");
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(new Bundle())).addToBackStack(null).commit();
     }
 }
