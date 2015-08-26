@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -77,6 +77,7 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
 
         tweetButton = (Button) getActivity().findViewById(R.id.tweet_button);
         editText = (EditText) getActivity().findViewById(R.id.tweet_box);
+        editText.requestFocus();
 
         tweetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,11 +85,15 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
                 Log.d(TAG,"click before building tweet");
 
                 tweetComposerPresenter.createTweet(editText.getText().toString());
+                //Hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(),0);
             }
         });
 
-
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //Show the keyboard
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     @VisibleForTesting

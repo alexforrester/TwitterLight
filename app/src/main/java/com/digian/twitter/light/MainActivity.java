@@ -14,7 +14,6 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.digian.twitter.light.fragments.HomeTimelineFragment;
@@ -26,7 +25,6 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
-import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
@@ -57,30 +55,9 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         }
     }
 
-    /**
-     * @param menu - inflate the menu; this adds items to the action bar if it is present.
-     * @return - true if consumed etc.
-     */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    /**
-     * @param item which is clicked in actionbar/toolbar
-     * @return whether consumed etc..
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return false;
     }
 
     /**
@@ -129,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
 
     @VisibleForTesting
     void setUpFabricKits(TwitterAuthConfig authConfig) {
-        Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetComposer(), new TweetUi()});
+        Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetUi()});
     }
 
     /**
@@ -155,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
             bundle.putString(HomeTimelinePresenter.TWITTER_SESSION_USER_NAME, result.data.getUserName());
         }
 
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).addToBackStack(null).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).commit();
     }
 
     @Override
@@ -166,12 +143,22 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
 
     @Override
     public void displayTweetComposer() {
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, TweetComposerFragment.newInstance()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, TweetComposerFragment.newInstance()).addToBackStack(null).commit();
     }
 
     @Override
     public void showUpdatedTimeline() {
         Log.d(TAG, "Show updated timeline");
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(new Bundle())).addToBackStack(null).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(new Bundle())).commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG,"onBackPressed()");
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            this.finish();
+        }
     }
 }

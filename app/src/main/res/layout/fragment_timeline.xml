@@ -16,14 +16,22 @@
 
         <Button
             android:id="@+id/refresh_list"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp"
             android:layout_height="match_parent"
             android:text="@string/refresh_list"
             android:layout_weight="1" />
 
         <Button
             android:id="@+id/post_tweet"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp"
             android:layout_height="match_parent"
             android:text="@string/post_tweet"
             android:layout_weight="1" />
@@ -33,7 +41,7 @@
     <ListView android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="6"
+        android:layout_weight="8"
         android:divider="#e1e8ed"
         android:dividerHeight="1dp"
         android:drawSelectorOnTop="false"/>
