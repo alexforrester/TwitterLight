@@ -1,8 +1,5 @@
 package com.digian.twitter.light.fragments;
 
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-
 import com.digian.twitter.light.views.TimelineView;
 
 /**
@@ -10,12 +7,12 @@ import com.digian.twitter.light.views.TimelineView;
  */
 public class HomeTimelineSubFragment extends HomeTimelineFragment implements TimelineView {
 
-    private Bundle testBundle;
+
     private boolean createHomeTimelineCalled = false;
 
-    public static HomeTimelineSubFragment newInstance(@NonNull Bundle args) {
+    public static HomeTimelineSubFragment newInstance() {
         HomeTimelineSubFragment fragment = new HomeTimelineSubFragment();
-        fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -29,15 +26,6 @@ public class HomeTimelineSubFragment extends HomeTimelineFragment implements Tim
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-    @Override
-    void initialiseUserTimelinePresenter(Bundle bundle) {
-        testBundle = bundle;
-    }
-
-    Bundle getTestBundle() {
-        return testBundle;
     }
 
     boolean isCreateHomeTimelineCalled() {

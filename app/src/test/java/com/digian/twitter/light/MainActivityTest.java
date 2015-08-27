@@ -4,7 +4,11 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
 
+import com.digian.twitter.light.fragments.HomeTimelineFragment;
+import com.digian.twitter.light.fragments.HomeTimelineSubFragment;
 import com.digian.twitter.light.fragments.SignInFragment;
+import com.digian.twitter.light.fragments.TweetComposerFragment;
+import com.twitter.sdk.android.core.TwitterException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by forrestal on 21/08/2015.
@@ -24,9 +29,10 @@ import static org.mockito.Mockito.verify;
  * See <a href="https://github.com/robolectric/robolectric/issues/1810">IllegalArgumentException: path must be convex #1810</a>
  */
 @RunWith(CustomRobolectricRunner.class)
-@Config(constants = BuildConfig.class, shadows = OutlineShadow.class, sdk = Build.VERSION_CODES.LOLLIPOP )
-public class MainActivityTest{
+@Config(constants = BuildConfig.class, shadows = OutlineShadow.class, sdk = Build.VERSION_CODES.LOLLIPOP)
+public class MainActivityTest {
 
+    public static final String ERROR_SIGNING_IN = "Error Signing In";
     MainActivity mClassUnderTest;
 
     @Before
@@ -56,12 +62,85 @@ public class MainActivityTest{
     }
 
     @Test
-    public void testMainActivityImplementsTwitterSignInCallback()  {
+    public void testSignInFragmentReplacedWithHomeTimelineFragmentOnSignInSuccess() {
+        mClassUnderTest = spy(Robolectric.setupActivity(MainActivity.class));
+
+        HomeTimelineFragment homeTimelineSubFragment = HomeTimelineSubFragment.newInstance();
+
+        when(mClassUnderTest.getHomeTimelineFragment()).thenReturn(homeTimelineSubFragment);
+
+        mClassUnderTest.signInSuccess(null);
+        Fragment addedFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(addedFragment instanceof HomeTimelineFragment);
+    }
+
+    @Test
+    public void testToastMessageWithErrorShownIfProblemSigningIn() {
+        mClassUnderTest = spy(Robolectric.setupActivity(MainActivity.class));
+
+        HomeTimelineFragment homeTimelineSubFragment = HomeTimelineSubFragment.newInstance();
+
+        when(mClassUnderTest.getHomeTimelineFragment()).thenReturn(homeTimelineSubFragment);
+
+        TwitterException twitterException = new TwitterException(ERROR_SIGNING_IN);
+        mClassUnderTest.signInFailure(twitterException);
+
+        verify(mClassUnderTest, times(1)).displayToast(twitterException);
+    }
+
+    @Test
+    public void testTweetComposerFragmentDisplayedWhenTweetComposerCallbackReceived() {
+        mClassUnderTest = Robolectric.setupActivity(MainActivity.class);
+
+        mClassUnderTest.displayTweetComposer();
+
+        Fragment addedFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(addedFragment instanceof TweetComposerFragment);
+    }
+
+    @Test
+    public void testNewHomeTimelineFragmentAddedWhenShowUpdatedCallbackMade() {
+
+        mClassUnderTest = spy(Robolectric.setupActivity(MainActivity.class));
+
+        HomeTimelineFragment homeTimelineSubFragment = HomeTimelineSubFragment.newInstance();
+        when(mClassUnderTest.getHomeTimelineFragment()).thenReturn(homeTimelineSubFragment);
+
+        Fragment currentFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(currentFragment instanceof SignInFragment);
+
+        mClassUnderTest.showUpdatedTimeline();
+        Fragment addedFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(addedFragment instanceof HomeTimelineFragment);
+    }
+
+    @Test
+    public void testPoppingFragmentsOffTheStack() {
+
+        mClassUnderTest = spy(Robolectric.setupActivity(MainActivity.class));
+
+        HomeTimelineFragment homeTimelineSubFragment = HomeTimelineSubFragment.newInstance();
+        when(mClassUnderTest.getHomeTimelineFragment()).thenReturn(homeTimelineSubFragment);
+
+        Fragment currentFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(currentFragment instanceof SignInFragment);
+
+        mClassUnderTest.displayTweetComposer();
+        Fragment addedFragment = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(addedFragment instanceof TweetComposerFragment);
+
+        mClassUnderTest.onBackPressed();
+        Fragment fragmentAfterPop = mClassUnderTest.getFragmentManager().findFragmentById(R.id.fragment_container);
+        assertTrue(fragmentAfterPop instanceof SignInFragment);
+    }
+
+    @Test
+    public void testMainActivityImplementsTwitterSignInCallback() {
         assertTrue(mClassUnderTest instanceof TwitterSignInCallback);
     }
 
     @Test
-    public void testMainActivityImplementsTweetComposerCallback()  {
+    public void testMainActivityImplementsTweetComposerCallback() {
         assertTrue(mClassUnderTest instanceof TweetComposerCallback);
     }
 }

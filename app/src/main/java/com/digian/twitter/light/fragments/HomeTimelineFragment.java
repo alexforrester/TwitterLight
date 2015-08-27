@@ -3,7 +3,6 @@ package com.digian.twitter.light.fragments;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +17,7 @@ import com.digian.twitter.light.TweetComposerCallback;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.digian.twitter.light.presenters.HomeTimelinePresenterImpl;
 import com.digian.twitter.light.views.TimelineView;
-import com.twitter.sdk.android.tweetui.TweetViewAdapter;
+import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
 
 /**
  * Created by forrestal on 24/08/2015.
@@ -37,13 +36,11 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     /**
      * Create new instance of UserTimelineFragment passing in any args
      *
-     * @param args
      * @return new instance of UserTimelineFragment
      */
-    public static HomeTimelineFragment newInstance(@NonNull Bundle args) {
-        Log.d(TAG, "HomeTimelineFragment newInstance(@NonNull Bundle args)");
+    public static HomeTimelineFragment newInstance() {
+        Log.d(TAG, "HomeTimelineFragment newInstance()");
         HomeTimelineFragment fragment = new HomeTimelineFragment();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -93,8 +90,7 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     }
 
     /**
-     * Takes care of initialising the presenter depending on whether this is the first time
-     * it has been created or whether it is done from savedInstanceState
+     * Set-up buttons and listeners
      *
      * @param savedInstanceState
      */
@@ -118,14 +114,6 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
                 tweetComposerCallback.displayTweetComposer();
             }
         });
-
-        if (savedInstanceState != null) {
-            Log.d(TAG, "savedInstanceState != null");
-            initialiseUserTimelinePresenter(savedInstanceState);
-        } else {
-            Log.d(TAG, "savedInstanceState == null");
-            initialiseUserTimelinePresenter(getArguments());
-        }
     }
 
     /**
@@ -160,20 +148,14 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         Log.d(TAG, "updateUserTweetList(ListAdapter adapter)");
         setListAdapter(adapter);
 
-        TweetViewAdapter tweetViewAdapter = (TweetViewAdapter) getListAdapter();
-        tweetViewAdapter.notifyDataSetChanged();
+        TweetTimelineListAdapter tweetTimelineListAdapter = (TweetTimelineListAdapter) getListAdapter();
+        tweetTimelineListAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void displayError(String error) {
-        Log.d(TAG, "Display Error: "+error);
+        Log.d(TAG, "Display Error: " + error);
         Toast.makeText(getActivity(),error,Toast.LENGTH_LONG).show();
-    }
-
-    @VisibleForTesting
-    HomeTimelinePresenter getHomeTimelinePresenter() {
-        Log.d(TAG, "getHomeTimelinePresenter()");
-        return mHomeTimelinePresenter;
     }
 
     @VisibleForTesting
@@ -183,8 +165,11 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     }
 
     @VisibleForTesting
-    void initialiseUserTimelinePresenter(Bundle bundle) {
-        Log.d(TAG, "initialiseUserTimelinePresenter(Bundle bundle)");
-        mHomeTimelinePresenter.init(bundle);
+    HomeTimelinePresenter getHomeTimelinePresenter() {
+        Log.d(TAG, "getHomeTimelinePresenter()");
+        return mHomeTimelinePresenter;
     }
+
+
+
 }

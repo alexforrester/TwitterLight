@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.digian.twitter.light.fragments.HomeTimelineFragment;
 import com.digian.twitter.light.fragments.SignInFragment;
 import com.digian.twitter.light.fragments.TweetComposerFragment;
-import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -57,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         }
     }
 
+    /**
+     * Remove Action Bar Overflow menu as unneeded
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         return false;
@@ -85,33 +90,6 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     }
 
     /**
-     * Utility method to get current fragment and also used for test classes hence package private visibility
-     *
-     * @return active fragment
-     */
-    @VisibleForTesting
-    @CheckResult
-    @Nullable
-    Fragment getCurrentFragment() {
-        return getFragmentManager().findFragmentById(R.id.fragment_container);
-    }
-
-    /**
-     * Set fragment - used for tests/spys etc.
-     *
-     * @param fragment
-     */
-    @VisibleForTesting
-    void setCurrentFragment(@NonNull Fragment fragment) {
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
-    }
-
-    @VisibleForTesting
-    void setUpFabricKits(TwitterAuthConfig authConfig) {
-        Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetUi()});
-    }
-
-    /**
      * Returns Twitter session of now logged in user
      * <p/>
      * The active session is automatically persisted, but can be retrieved again from below:
@@ -125,22 +103,15 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
      */
     @Override
     public void signInSuccess(@NonNull Result<TwitterSession> result) {
+        //Twitter session is not used as user is automatcially logged in
         Log.d(TAG, "signInSuccess(Result<TwitterSession> result)");
-
-        Bundle bundle = new Bundle();
-
-        if (result != null) {
-            bundle.putLong(HomeTimelinePresenter.TWITTER_SESSION_USER_ID, result.data.getUserId());
-            bundle.putString(HomeTimelinePresenter.TWITTER_SESSION_USER_NAME, result.data.getUserName());
-        }
-
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(bundle)).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, getHomeTimelineFragment()).commit();
     }
 
     @Override
     public void signInFailure(@NonNull TwitterException exception) {
         Log.e(TAG, "signInFailure(TwitterException exception)", exception);
-        Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
+        displayToast(exception);
     }
 
     @Override
@@ -151,16 +122,53 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     @Override
     public void showUpdatedTimeline() {
         Log.d(TAG, "Show updated timeline");
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container, HomeTimelineFragment.newInstance(new Bundle())).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, getHomeTimelineFragment()).commit();
     }
 
     @Override
     public void onBackPressed() {
-        Log.d(TAG,"onBackPressed()");
+        Log.d(TAG, "onBackPressed()");
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStack();
         } else {
             this.finish();
         }
+    }
+
+    @VisibleForTesting
+    void displayToast(@NonNull TwitterException exception) {
+        Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Utility method to get current fragment and also used for test classes hence package private visibility
+     *
+     * @return active fragment
+     */
+    @VisibleForTesting
+    @CheckResult
+    @Nullable
+    Fragment getCurrentFragment() {
+        return getFragmentManager().findFragmentById(R.id.fragment_container);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    @CheckResult
+    HomeTimelineFragment getHomeTimelineFragment() {
+        return HomeTimelineFragment.newInstance();
+    }
+    /**
+     * Set fragment - used for tests/spys etc.
+     *
+     * @param fragment
+     */
+    @VisibleForTesting
+    void setCurrentFragment(@NonNull Fragment fragment) {
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+    }
+
+    private void setUpFabricKits(TwitterAuthConfig authConfig) {
+        Fabric.with(this, new Kit[]{new TwitterCore(authConfig), new TweetUi()});
     }
 }

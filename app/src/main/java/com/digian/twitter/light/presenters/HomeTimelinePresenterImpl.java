@@ -1,7 +1,6 @@
 package com.digian.twitter.light.presenters;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -11,7 +10,8 @@ import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.services.StatusesService;
-import com.twitter.sdk.android.tweetui.TweetViewAdapter;
+import com.twitter.sdk.android.tweetui.FixedTweetTimeline;
+import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
 
 import java.util.List;
 
@@ -23,8 +23,6 @@ public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTime
 
     private static final String TAG = HomeTimelinePresenterImpl.class.getSimpleName();
 
-    private long mUserId;
-    private String mUserName;
     private TimelineView timelineView;
 
     /**
@@ -45,15 +43,6 @@ public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTime
     HomeTimelinePresenterImpl(@NonNull TimelineView timelineView) {
         Log.d(TAG, "UserTimelinePresenterImpl(@NonNull TimelineView timelineView)");
         this.timelineView = timelineView;
-    }
-
-    /**
-     * Set user details up
-     */
-    @Override
-    public void init(@NonNull Bundle bundle) {
-        Log.d(TAG, "init(@NonNull Bundle bundle)");
-        setUserDetails(bundle);
     }
 
     /**
@@ -85,29 +74,8 @@ public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTime
         statusesService.homeTimeline(count, null, null, null, null, null, null, getTwitterCallback(context, true));
     }
 
-    public long getUserId() {
-        return mUserId;
-    }
-
-    public String getUserName() {
-        return mUserName;
-    }
-
     public TimelineView getTimelineView() {
         return timelineView;
-    }
-
-    /**
-     * Setting bundle of user details (userId and userName (Twitter screenName))
-     *
-     * @param bundle
-     */
-    private void setUserDetails(@NonNull Bundle bundle) {
-        Log.d(TAG, "setUserDetails(@NonNull Bundle bundle)");
-        if (bundle != null) {
-            mUserId = bundle.getLong(TWITTER_SESSION_USER_ID);
-            mUserName = bundle.getString(TWITTER_SESSION_USER_NAME);
-        }
     }
 
     @NonNull
@@ -132,7 +100,16 @@ public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTime
         @Override
         public void success(Result<List<Tweet>> result) {
             Log.d(TAG, "success(Result<List<Tweet>> result)");
-            final TweetViewAdapter adapter = getTweetViewAdapter(result);
+
+
+            List<Tweet> tweets = result.data;
+
+            if (tweets == null) {
+                Log.d(TAG, "Tweets is null");
+            }
+
+            FixedTweetTimeline fixedTweetTimeline = new FixedTweetTimeline.Builder().setTweets(tweets).build();
+            TweetTimelineListAdapter adapter = new TweetTimelineListAdapter(context, fixedTweetTimeline);
 
             if (isUpdate) {
                 Log.d(TAG, "update user tweet list");
@@ -143,22 +120,6 @@ public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTime
             }
 
             resetMembers();
-        }
-
-        @NonNull
-        TweetViewAdapter getTweetViewAdapter(@NonNull Result<List<Tweet>> result) {
-            //Suggested to use 'FixedTweetTime' however this class is not in the Fabric sdk although it is mentioned here:
-            // - http://docs.fabric.io/android/twitter/show-tweets.html#tweet-list-adapters
-            final TweetViewAdapter adapter = new TweetViewAdapter(context);
-
-            if (result != null) {
-                Log.e(TAG,"Adapter set with tweet data");
-                adapter.setTweets(result.data);
-            }
-            else
-                Log.e(TAG,"Adapter passed to getTweetViewAdapter is null");
-
-            return adapter;
         }
 
         @Override

@@ -1,7 +1,6 @@
 package com.digian.twitter.light.presenters;
 
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ListAdapter;
@@ -52,19 +51,6 @@ public class HomeTimelinePresenterImplTest extends TestCase {
     public void testNewInstanceIsSetUpCorrectlyWithTimelineViewSet() throws Exception {
         assertNotNull("timeline view should have been created now", ((HomeTimelinePresenterImpl) mClassUnderTest).getTimelineView() != null);
         assertEquals("Timeline view should be same as passed in", mockTimelineView, ((HomeTimelinePresenterImpl)mClassUnderTest).getTimelineView());
-    }
-
-    @Test
-    public void testUserDetailsSetCorrectly() throws Exception {
-
-        Bundle bundle = new Bundle();
-        bundle.putString(HomeTimelinePresenter.TWITTER_SESSION_USER_NAME, USERNAME);
-        bundle.putLong(HomeTimelinePresenter.TWITTER_SESSION_USER_ID, VALUE);
-        mClassUnderTest.init(bundle);
-
-        assertEquals("User id should not be default value of 0L", 1L, ((HomeTimelinePresenterImpl) mClassUnderTest).getUserId());
-        assertNotNull("User name should not be null", ((HomeTimelinePresenterImpl) mClassUnderTest).getUserName());
-        assertEquals("User name should be same as set from bundle", USERNAME, ((HomeTimelinePresenterImpl)mClassUnderTest).getUserName());
     }
 
     @Test
