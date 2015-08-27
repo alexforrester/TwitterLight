@@ -29,7 +29,6 @@ public class MainActivityTest{
 
     MainActivity mClassUnderTest;
 
-
     @Before
     public void setUp() {
         mClassUnderTest = Robolectric.setupActivity(MainActivity.class);

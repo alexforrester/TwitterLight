@@ -2,6 +2,8 @@ package com.digian.twitter.light;
 
 /**
  * Created by forrestal on 20/08/2015.
+ * The sole activity managing all the other fragments for sign in, home timeline display, refreshing timeline
+ * and sending tweets
  */
 
 import android.app.Fragment;

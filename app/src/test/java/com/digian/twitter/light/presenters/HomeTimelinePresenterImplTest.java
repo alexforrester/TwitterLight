@@ -9,11 +9,8 @@ import android.widget.ListAdapter;
 import com.digian.twitter.light.BuildConfig;
 import com.digian.twitter.light.CustomRobolectricRunner;
 import com.digian.twitter.light.OutlineShadow;
+import com.digian.twitter.light.TestStatusServices;
 import com.digian.twitter.light.views.TimelineView;
-import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.services.StatusesService;
 
 import junit.framework.TestCase;
@@ -24,9 +21,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -42,7 +36,6 @@ public class HomeTimelinePresenterImplTest extends TestCase {
 
     public static final String USERNAME = "username";
     public static final long VALUE = 1L;
-    public static final String SOME_TWITTER_EXCEPTION = "some twitter exception";
 
     @Mock
     private TimelineView mockTimelineView;
@@ -83,7 +76,6 @@ public class HomeTimelinePresenterImplTest extends TestCase {
         homeTimelinePresenter.createTimeline(RuntimeEnvironment.application);
 
         verify(timelineView,times(1)).displayUserTweetList(any(ListAdapter.class));
-
     }
 
     @Test
@@ -122,7 +114,7 @@ public class HomeTimelinePresenterImplTest extends TestCase {
 
         @Override
         public StatusesService getStatusesService() {
-            return new TestStatusServiceSuccess();
+            return new TestStatusServices.TestStatusServiceSuccess();
         }
     }
 
@@ -140,118 +132,7 @@ public class HomeTimelinePresenterImplTest extends TestCase {
 
         @Override
         public StatusesService getStatusesService() {
-            return new TestStatusServiceFailure();
-        }
-    }
-
-    private static final class TestStatusServiceFailure implements StatusesService
-    {
-
-        @Override
-        public void mentionsTimeline(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void userTimeline(Long aLong, String s, Integer integer, Long aLong1, Long aLong2, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Boolean aBoolean3, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void homeTimeline(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Boolean aBoolean3, Callback<List<Tweet>> callback) {
-            TwitterException twitterException = new TwitterException(SOME_TWITTER_EXCEPTION);
-            callback.failure(twitterException);
-        }
-
-        @Override
-        public void retweetsOfMe(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void show(Long aLong, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void lookup(String s, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void update(String s, Long aLong, Boolean aBoolean, Double aDouble, Double aDouble1, String s1, Boolean aBoolean1, Boolean aBoolean2, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void retweet(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void destroy(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void unretweet(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
-        }
-    }
-
-    private static final class TestStatusServiceSuccess implements StatusesService
-    {
-
-        @Override
-        public void mentionsTimeline(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void userTimeline(Long aLong, String s, Integer integer, Long aLong1, Long aLong2, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Boolean aBoolean3, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void homeTimeline(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Boolean aBoolean3, Callback<List<Tweet>> callback) {
-            List<Tweet> tweets = new ArrayList<Tweet>();
-            Result result = new Result(tweets,null);
-            callback.success(result);
-        }
-
-        @Override
-        public void retweetsOfMe(Integer integer, Long aLong, Long aLong1, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void show(Long aLong, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void lookup(String s, Boolean aBoolean, Boolean aBoolean1, Boolean aBoolean2, Callback<List<Tweet>> callback) {
-
-        }
-
-        @Override
-        public void update(String s, Long aLong, Boolean aBoolean, Double aDouble, Double aDouble1, String s1, Boolean aBoolean1, Boolean aBoolean2, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void retweet(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void destroy(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
-        }
-
-        @Override
-        public void unretweet(Long aLong, Boolean aBoolean, Callback<Tweet> callback) {
-
+            return new TestStatusServices.TestStatusServiceFailure();
         }
     }
 }

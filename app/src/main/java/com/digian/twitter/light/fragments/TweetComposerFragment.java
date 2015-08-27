@@ -21,6 +21,8 @@ import com.digian.twitter.light.views.TweetComposerView;
 
 /**
  * Created by forrestal on 26/08/2015.
+ *
+ * UI with associated functionality to send a tweet
  */
 public class TweetComposerFragment extends Fragment implements TweetComposerView {
 
@@ -31,13 +33,11 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
     private TweetComposerCallback tweetComposerCallback;
     private TweetComposerPresenter tweetComposerPresenter;
 
-
     public TweetComposerFragment() { }
 
     public static TweetComposerFragment newInstance() {
         return new TweetComposerFragment();
     }
-
 
     /**
      * Set-up
@@ -50,9 +50,8 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         tweetComposerPresenter = TweetComposerPresenterImpl.newInstance(this,getActivity());
     }
 
-
     /**
-     * Attach parent activity with check for implementation of interfaces
+     * Attach parent activity with check for implementation of interface
      * @param activity
      */
     @Override
@@ -96,28 +95,54 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
-    @VisibleForTesting
-    public Button getTweetButton() {
-        return tweetButton;
-    }
-
-    @VisibleForTesting
-    public EditText getEditText() {
-        return editText;
-    }
-
-    @VisibleForTesting
-    public TweetComposerCallback getTweetComposerCallback() {
-        return tweetComposerCallback;
-    }
-
+    /**
+     * Update the timeline after the tweet sent overriding view interface
+     */
     @Override
     public void tweetSent() {
         tweetComposerCallback.showUpdatedTimeline();
     }
 
+    /**
+     * Display error from trying to send a tweet overriding view interface
+     */
     @Override
     public void tweetError(String error) {
+        displayToast(error);
+    }
+
+    @VisibleForTesting
+    void displayToast(String error) {
         Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
+    }
+
+    @VisibleForTesting
+    Button getTweetButton() {
+        return tweetButton;
+    }
+
+    @VisibleForTesting
+    EditText getEditText() {
+        return editText;
+    }
+
+    @VisibleForTesting
+    TweetComposerCallback getTweetComposerCallback() {
+        return tweetComposerCallback;
+    }
+
+    @VisibleForTesting
+    TweetComposerPresenter getTweetComposerPresenter() {
+        return tweetComposerPresenter;
+    }
+
+    @VisibleForTesting
+    void setTweetComposerPresenter(TweetComposerPresenter tweetComposerPresenter) {
+        this.tweetComposerPresenter = tweetComposerPresenter;
+    }
+
+    @VisibleForTesting
+    void setTweetComposerCallback(TweetComposerCallback tweetComposerCallback) {
+        this.tweetComposerCallback = tweetComposerCallback;
     }
 }

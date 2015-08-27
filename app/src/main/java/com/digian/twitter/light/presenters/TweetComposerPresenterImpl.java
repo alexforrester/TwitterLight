@@ -2,6 +2,7 @@ package com.digian.twitter.light.presenters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -15,6 +16,7 @@ import com.twitter.sdk.android.core.services.StatusesService;
 
 /**
  * Created by forrestal on 26/08/2015.
+ * Handle interaction between model and view on the Tweet Composer screen
  */
 public class TweetComposerPresenterImpl extends BasePresenter implements TweetComposerPresenter {
     private static final String TAG = TweetComposerPresenterImpl.class.getSimpleName();
@@ -22,7 +24,7 @@ public class TweetComposerPresenterImpl extends BasePresenter implements TweetCo
     TweetComposerView tweetComposerView;
     Context context;
 
-    private TweetComposerPresenterImpl(TweetComposerView tweetComposerView, Context context) {
+    TweetComposerPresenterImpl(TweetComposerView tweetComposerView, Context context) {
         this.tweetComposerView = tweetComposerView;
         this.context = context;
     }
@@ -45,7 +47,21 @@ public class TweetComposerPresenterImpl extends BasePresenter implements TweetCo
         statusesService.update(tweet.substring(0, tweetLength), null, null, null, null, null, null, null, getTweetBuilderCallback(tweetComposerView));
     }
 
-    int getTweetLength(String tweet) {
+    Callback<Tweet> getTweetBuilderCallback(TweetComposerView tweetComposerView) {
+        return new TweetBuilderCallback(tweetComposerView);
+    }
+
+    @VisibleForTesting
+    TweetComposerView getTweetComposerView() {
+        return tweetComposerView;
+    }
+
+    @VisibleForTesting
+    Context getContext() {
+        return context;
+    }
+
+    private int getTweetLength(String tweet) {
         if (TextUtils.isEmpty(tweet.trim())) {
             tweetComposerView.tweetError(context.getString(R.string.tweet_not_entered));
             return -1;
@@ -61,10 +77,6 @@ public class TweetComposerPresenterImpl extends BasePresenter implements TweetCo
         return tweetLength;
     }
 
-    public Callback<Tweet> getTweetBuilderCallback(TweetComposerView tweetComposerView) {
-        return new TweetBuilderCallback(tweetComposerView);
-    }
-
     private static final class TweetBuilderCallback extends Callback<Tweet> {
         private final String TAG = TweetBuilderCallback.class.getSimpleName();
 
@@ -76,13 +88,14 @@ public class TweetComposerPresenterImpl extends BasePresenter implements TweetCo
 
         @Override
         public void success(Result<Tweet> result) {
+            Log.d(TAG,"Tweet has been sent");
             tweetComposerView.tweetSent();
         }
 
         @Override
         public void failure(TwitterException e) {
+            Log.e(TAG,"Twitter exception thrown",e);
             tweetComposerView.tweetError(e.getMessage());
         }
-
     }
 }

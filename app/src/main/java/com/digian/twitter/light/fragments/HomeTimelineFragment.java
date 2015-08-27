@@ -22,6 +22,8 @@ import com.twitter.sdk.android.tweetui.TweetViewAdapter;
 
 /**
  * Created by forrestal on 24/08/2015.
+ * Display with user's home timeline with the option to refresh and tweet
+ *
  */
 public class HomeTimelineFragment extends ListFragment implements TimelineView {
 
@@ -46,7 +48,7 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     }
 
     /**
-     * Default Constructor
+     *  Required default public constructor
      */
     public HomeTimelineFragment() {
     }
@@ -137,8 +139,8 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     }
 
     /**
-     * This is the overridden method from the TimelineView so the presenter can update the view
-     * through the interface
+     * This is the overridden method from the TimelineView so the presenter can display the view
+     * through the interface for the first time
      *
      * @param adapter
      */
@@ -148,6 +150,11 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         setListAdapter(adapter);
     }
 
+    /**
+     * This is the overridden method from the TimelineView so the presenter can update the view
+     * through the interface
+     * @param adapter
+     */
     @Override
     public void updateUserTweetList(ListAdapter adapter) {
         Log.d(TAG, "updateUserTweetList(ListAdapter adapter)");

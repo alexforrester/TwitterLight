@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * Created by forrestal on 24/08/2015.
+ * Handle interaction between model and view in the home timeline
  */
 public class HomeTimelinePresenterImpl extends BasePresenter implements HomeTimelinePresenter {
 

@@ -22,6 +22,8 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 /**
  * Created by forrestal on 21/08/2015.
+ * Allow user to sign in using Twitter's OAuth service. The result from the
+ * launched activity is passed back to the fragment from the activity
  */
 public class SignInFragment extends Fragment {
 
@@ -40,7 +42,7 @@ public class SignInFragment extends Fragment {
     }
 
     /**
-     * Required empty public constructor
+     *  Required default public constructor
      */
     public SignInFragment() {}
 
@@ -58,7 +60,7 @@ public class SignInFragment extends Fragment {
     }
 
     /**
-     * Attach parent activity with check for implementation of interfaces
+     * Attach parent activity with check for implementation of interface
      * @param activity
      */
     @Override

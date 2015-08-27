@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 /**
  * Created by forrestal on 24/08/2015.
+ *  * Presenter interface for home timeline
  */
 public interface HomeTimelinePresenter {
 
