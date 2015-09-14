@@ -2,6 +2,7 @@ package com.digian.twitter.light.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -16,8 +17,11 @@ import android.widget.Toast;
 import com.digian.twitter.light.R;
 import com.digian.twitter.light.TweetComposerCallback;
 import com.digian.twitter.light.presenters.TweetComposerPresenter;
-import com.digian.twitter.light.presenters.TweetComposerPresenterImpl;
 import com.digian.twitter.light.views.TweetComposerView;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by forrestal on 26/08/2015.
@@ -28,12 +32,12 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
 
     private static final String TAG = TweetComposerFragment.class.getSimpleName();
 
-    private Button tweetButton;
-    private EditText editText;
-    private TweetComposerCallback tweetComposerCallback;
-    private TweetComposerPresenter tweetComposerPresenter;
+    @Bind(R.id.tweet_button) Button mTweetButton;
+    @Bind(R.id.tweet_box) EditText mEditText;
+    private TweetComposerCallback mTweetComposerCallback;
+    private TweetComposerPresenter mTweetComposerPresenter;
 
-    public TweetComposerFragment() { }
+    public TweetComposerFragment() {}
 
     public static TweetComposerFragment newInstance() {
         return new TweetComposerFragment();
@@ -47,18 +51,27 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate(Bundle savedInstanceState)");
 
-        tweetComposerPresenter = TweetComposerPresenterImpl.newInstance(this,getActivity());
+        mTweetComposerPresenter = TweetComposerPresenter.newInstance(this, getActivity());
     }
 
-    /**
-     * Attach parent activity with check for implementation of interface
-     * @param activity
-     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach(Context context)");
+        try {
+            if (context instanceof Activity)
+                mTweetComposerCallback = (TweetComposerCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement TweetComposerCallback");
+        }
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d(TAG, "onAttach(Activity activity)");
         try {
-            tweetComposerCallback = (TweetComposerCallback) activity;
+            mTweetComposerCallback = (TweetComposerCallback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement TweetComposerCallback");
         }
@@ -66,7 +79,10 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_tweet, container, false);
+        Log.d(TAG, "onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)");
+        View view = inflater.inflate(R.layout.fragment_tweet, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -74,38 +90,56 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated(Bundle savedInstanceState)");
 
-        tweetButton = (Button) getActivity().findViewById(R.id.tweet_button);
-        editText = (EditText) getActivity().findViewById(R.id.tweet_box);
-        editText.requestFocus();
-
-        tweetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG,"click before building tweet");
-
-                tweetComposerPresenter.createTweet(editText.getText().toString());
-                //Hide the keyboard
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(),0);
-            }
-        });
-
+        mEditText.requestFocus();
         //Show the keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
-    /**
-     * Update the timeline after the tweet sent overriding view interface
-     */
-    @Override
-    public void tweetSent() {
-        tweetComposerCallback.showUpdatedTimeline();
+    @OnClick(R.id.tweet_button)
+    public void sendTweet(View v) {
+        mTweetComposerPresenter.createTweet(mEditText.getText().toString());
+        //Hide the keyboard
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    /**
-     * Display error from trying to send a tweet overriding view interface
-     */
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause()");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop()");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView()");
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "onDetach()");
+    }
+
+    @Override
+    public void tweetSent() {
+        mTweetComposerCallback.showUpdatedTimeline();
+    }
+
     @Override
     public void tweetError(String error) {
         displayToast(error);
@@ -117,32 +151,32 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
     }
 
     @VisibleForTesting
-    Button getTweetButton() {
-        return tweetButton;
+    Button getmTweetButton() {
+        return mTweetButton;
     }
 
     @VisibleForTesting
-    EditText getEditText() {
-        return editText;
+    EditText getmEditText() {
+        return mEditText;
     }
 
     @VisibleForTesting
-    TweetComposerCallback getTweetComposerCallback() {
-        return tweetComposerCallback;
+    TweetComposerCallback getmTweetComposerCallback() {
+        return mTweetComposerCallback;
     }
 
     @VisibleForTesting
-    TweetComposerPresenter getTweetComposerPresenter() {
-        return tweetComposerPresenter;
+    TweetComposerPresenter getmTweetComposerPresenter() {
+        return mTweetComposerPresenter;
     }
 
     @VisibleForTesting
-    void setTweetComposerPresenter(TweetComposerPresenter tweetComposerPresenter) {
-        this.tweetComposerPresenter = tweetComposerPresenter;
+    void setmTweetComposerPresenter(TweetComposerPresenter mTweetComposerPresenter) {
+        this.mTweetComposerPresenter = mTweetComposerPresenter;
     }
 
     @VisibleForTesting
-    void setTweetComposerCallback(TweetComposerCallback tweetComposerCallback) {
-        this.tweetComposerCallback = tweetComposerCallback;
+    void setmTweetComposerCallback(TweetComposerCallback mTweetComposerCallback) {
+        this.mTweetComposerCallback = mTweetComposerCallback;
     }
 }

@@ -2,6 +2,7 @@ package com.digian.twitter.light.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CheckResult;
@@ -20,6 +21,8 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 /**
  * Created by forrestal on 21/08/2015.
  * Allow user to sign in using Twitter's OAuth service. The result from the
@@ -29,48 +32,48 @@ public class SignInFragment extends Fragment {
 
     private static final String TAG = SignInFragment.class.getSimpleName();
 
-    private TwitterLoginButton loginButton;
-    private TwitterSignInCallback twitterSignInCallback;
+    @Bind(R.id.twitter_login_button) TwitterLoginButton mLoginButton;
 
-    /**
-     * @return SignInFragment from factory method
-     */
+    private TwitterSignInCallback mTwitterSignInCallback;
+
     @NonNull
     @CheckResult
     public static SignInFragment newInstance() {
         return new SignInFragment();
     }
 
-    /**
-     *  Required default public constructor
-     */
     public SignInFragment() {}
 
-    /**
-     * Create view for fragment
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_signin, container, false);
+        Log.d(TAG,"onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) " + savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_signin, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
-    /**
-     * Attach parent activity with check for implementation of interface
-     * @param activity
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d(TAG, "onAttach(Activity activity)");
 
         try {
-            twitterSignInCallback = (TwitterSignInCallback) activity;
+            mTwitterSignInCallback = (TwitterSignInCallback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement TwitterSignInCallback");
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach(Context context)");
+
+        try {
+            if (context instanceof Activity)
+                mTwitterSignInCallback = (TwitterSignInCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement TwitterSignInCallback");
         }
     }
 
@@ -81,18 +84,20 @@ public class SignInFragment extends Fragment {
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        loginButton = (TwitterLoginButton) getActivity().findViewById(R.id.twitter_login_button);
-        loginButton.setCallback(new Callback<TwitterSession>() {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated (View view, Bundle savedInstanceState)");
+
+        mLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
                 Log.d(TAG, "Success - I have signed in yippee!");
-                twitterSignInCallback.signInSuccess(result);
+                mTwitterSignInCallback.signInSuccess(result);
             }
 
             @Override
             public void failure(TwitterException exception) {
                 Log.e(TAG, "Failure - something went wrong yikes!", exception);
-                twitterSignInCallback.signInFailure(exception);
+                mTwitterSignInCallback.signInFailure(exception);
             }
         });
     }
@@ -105,20 +110,27 @@ public class SignInFragment extends Fragment {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult" );
+        Log.d(TAG, "onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
 
         // Pass the activity result to the login button.
-        loginButton.onActivityResult(requestCode, resultCode, data);
+        mLoginButton.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView()");
+        ButterKnife.unbind(this);
     }
 
     @VisibleForTesting
-    void setLoginButton(TwitterLoginButton loginButton) {
-        this.loginButton = loginButton;
+    void setLoginButton(TwitterLoginButton mLoginButton) {
+        this.mLoginButton = mLoginButton;
     }
 
     @VisibleForTesting
     TwitterLoginButton getLoginButton() {
-        return loginButton;
+        return mLoginButton;
     }
 }

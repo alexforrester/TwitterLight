@@ -59,16 +59,16 @@ public class TweetComposerFragmentTest {
     @Test
     public void checkTweetComposerPresenterInitialised() {
         startVisibleFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
-        assertNotNull("TweetComposerPresenter should have been initialised", mClassUnderTest.getTweetComposerPresenter());
+        assertNotNull("TweetComposerPresenter should have been initialised", mClassUnderTest.getmTweetComposerPresenter());
     }
 
     @Test
     public void verifyTextButtonAndCallbackAreInitialisedCorrectly() {
         //Cannot test Fragment in Isolation as Fabric needs to have been initialised
         startVisibleFragment(mClassUnderTest,  Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
-        assertNotNull(mClassUnderTest.getEditText());
-        assertNotNull(mClassUnderTest.getTweetButton());
-        assertNotNull(mClassUnderTest.getTweetComposerCallback());
+        assertNotNull(mClassUnderTest.getmEditText());
+        assertNotNull(mClassUnderTest.getmTweetButton());
+        assertNotNull(mClassUnderTest.getmTweetComposerCallback());
     }
 
     @Test
@@ -76,12 +76,12 @@ public class TweetComposerFragmentTest {
         startVisibleFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
 
         TweetComposerPresenter tweetComposerPresenter = mock(TweetComposerPresenter.class);
-        mClassUnderTest.setTweetComposerPresenter(tweetComposerPresenter);
+        mClassUnderTest.setmTweetComposerPresenter(tweetComposerPresenter);
 
-        EditText tweetText = mClassUnderTest.getEditText();
+        EditText tweetText = mClassUnderTest.getmEditText();
         tweetText.setText(SOME_SAMPLE_TEXT);
 
-        Button tweetButton = mClassUnderTest.getTweetButton();
+        Button tweetButton = mClassUnderTest.getmTweetButton();
         tweetButton.performClick();
 
         verify(tweetComposerPresenter,times(1)).createTweet(SOME_SAMPLE_TEXT);
@@ -92,7 +92,7 @@ public class TweetComposerFragmentTest {
         startVisibleFragment(mClassUnderTest, Robolectric.setupActivity(MainActivity.class).getClass(), R.id.fragment_container);
 
         TweetComposerCallback tweetComposerCallback = mock(TweetComposerCallback.class);
-        mClassUnderTest.setTweetComposerCallback(tweetComposerCallback);
+        mClassUnderTest.setmTweetComposerCallback(tweetComposerCallback);
         mClassUnderTest.tweetSent();
 
         verify(tweetComposerCallback,times(1)).showUpdatedTimeline();

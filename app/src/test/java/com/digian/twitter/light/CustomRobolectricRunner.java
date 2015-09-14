@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  */
 public class CustomRobolectricRunner extends RobolectricGradleTestRunner {
     private static final int MAX_SDK_LEVEL = Build.VERSION_CODES.LOLLIPOP;
-    private int[] sdk = {21};
+    private int[] mSdk = {21};
 
     public CustomRobolectricRunner(Class<?> klass) throws InitializationError {
         super(klass);
@@ -27,7 +27,7 @@ public class CustomRobolectricRunner extends RobolectricGradleTestRunner {
         * SDK can not be higher than 21
         * constants must point to a real BuildConfig class
          */
-        config = new Config.Implementation(sdk,
+        config = new Config.Implementation(mSdk,
                 config.manifest(),
                 config.qualifiers(),
                 config.packageName(),

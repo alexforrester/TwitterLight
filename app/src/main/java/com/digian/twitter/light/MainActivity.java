@@ -5,7 +5,6 @@ package com.digian.twitter.light;
  * The sole activity managing all the other fragments for sign in, home timeline display, refreshing timeline
  * and sending tweets
  */
-
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,41 +38,57 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     private static final String TWITTER_KEY = "gkQPY641YDB2lVnyJ1aMyYfWj";
     private static final String TWITTER_SECRET = "2tbrFaaDQYCsNxhXeTcFWZVQAB1qypIZI31JQwSItVj564YS9r";
 
-    /**
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate(Bundle savedInstanceState)");
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         setUpFabricKits(authConfig);
 
         setContentView(R.layout.fragment_container);
 
         if (savedInstanceState == null) {
-            //Load IntroFragment
+            //Load SignInFragment
+            Log.d(TAG,"SignInFragment created");
             getFragmentManager().beginTransaction().add(R.id.fragment_container, SignInFragment.newInstance()).commit();
         }
     }
 
-    /**
-     * Remove Action Bar Overflow menu as unneeded
-     *
-     * @param menu
-     * @return
-     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart()");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume()");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause()");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         return false;
     }
 
-    /**
-     * Callback from Fabric Twitter Sign In call
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -89,18 +104,6 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         }
     }
 
-    /**
-     * Returns Twitter session of now logged in user
-     * <p/>
-     * The active session is automatically persisted, but can be retrieved again from below:
-     * <p/>
-     * TwitterSession session = Twitter.getSessionManager().getActiveSession();
-     * TwitterAuthToken authToken = session.getAuthToken();
-     * String token = authToken.token;
-     * String secret = authToken.secret;
-     *
-     * @param result active Twitter session
-     */
     @Override
     public void signInSuccess(@NonNull Result<TwitterSession> result) {
         //Twitter session is not used as user is automatcially logged in
@@ -140,11 +143,6 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
         Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * Utility method to get current fragment and also used for test classes hence package private visibility
-     *
-     * @return active fragment
-     */
     @VisibleForTesting
     @CheckResult
     @Nullable
@@ -158,11 +156,7 @@ public class MainActivity extends AppCompatActivity implements TwitterSignInCall
     HomeTimelineFragment getHomeTimelineFragment() {
         return HomeTimelineFragment.newInstance();
     }
-    /**
-     * Set fragment - used for tests/spys etc.
-     *
-     * @param fragment
-     */
+
     @VisibleForTesting
     void setCurrentFragment(@NonNull Fragment fragment) {
         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();

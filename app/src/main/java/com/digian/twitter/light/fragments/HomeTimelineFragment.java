@@ -2,6 +2,7 @@ package com.digian.twitter.light.fragments;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -15,9 +16,12 @@ import android.widget.Toast;
 import com.digian.twitter.light.R;
 import com.digian.twitter.light.TweetComposerCallback;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
-import com.digian.twitter.light.presenters.HomeTimelinePresenterImpl;
 import com.digian.twitter.light.views.TimelineView;
 import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by forrestal on 24/08/2015.
@@ -29,120 +33,132 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     private static final String TAG = HomeTimelineFragment.class.getSimpleName();
 
     private HomeTimelinePresenter mHomeTimelinePresenter;
-    private Button refreshButton;
-    private Button tweetButton;
-    private TweetComposerCallback tweetComposerCallback;
 
-    /**
-     * Create new instance of UserTimelineFragment passing in any args
-     *
-     * @return new instance of UserTimelineFragment
-     */
+    @Bind(R.id.refresh_list) Button mRefreshButton;
+    @Bind(R.id.post_tweet) Button mTweetButton;
+
+    private TweetComposerCallback mTweetComposerCallback;
+
     public static HomeTimelineFragment newInstance() {
         Log.d(TAG, "HomeTimelineFragment newInstance()");
         HomeTimelineFragment fragment = new HomeTimelineFragment();
         return fragment;
     }
 
-    /**
-     *  Required default public constructor
-     */
-    public HomeTimelineFragment() {
-    }
+    public HomeTimelineFragment() {}
 
-    /**
-     * Attach parent activity with check for implementation of interfaces
-     * @param activity
-     */
+    //Attach parent activity with check for implementation of interfaces
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d(TAG, "onAttach(Activity activity)");
         try {
-            tweetComposerCallback = (TweetComposerCallback) activity;
+                mTweetComposerCallback = (TweetComposerCallback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement TweetComposerCallback");
         }
     }
 
-    /**
-     * Set-up
-     */
+    //Attach parent activity with check for implementation of interfaces
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach(Context context)");
+        try {
+            if (context instanceof Activity)
+                mTweetComposerCallback = (TweetComposerCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement TweetComposerCallback");
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate(Bundle savedInstanceState)");
+        Log.d(TAG, "onCreate(Bundle savedInstanceState) " + savedInstanceState);
 
-        mHomeTimelinePresenter = HomeTimelinePresenterImpl.newInstance(this);
+        mHomeTimelinePresenter = HomeTimelinePresenter.newInstance(this);
     }
-
-    /**
-     * Return view for the fragment's home timeline
-     *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
-     */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_timeline, container, false);
+        Log.d(TAG, "onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)");
+        View view = inflater.inflate(R.layout.fragment_timeline, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
-    /**
-     * Set-up buttons and listeners
-     *
-     * @param savedInstanceState
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated(Bundle savedInstanceState)");
-
-        refreshButton = (Button) getActivity().findViewById(R.id.refresh_list);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mHomeTimelinePresenter.updateTimeline(HomeTimelineFragment.this.getActivity());
-            }
-        });
-
-        tweetButton = (Button) getActivity().findViewById(R.id.post_tweet);
-        tweetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tweetComposerCallback.displayTweetComposer();
-            }
-        });
     }
 
-    /**
-     * When presenter initialisation has been completed and fragment is viewable
-     * then create the home timeline
-     */
+    @OnClick(R.id.post_tweet)
+    public void composeTweet() {
+        mTweetComposerCallback.displayTweetComposer();
+    }
+
+    @OnClick(R.id.refresh_list)
+    public void refreshList() {
+        mHomeTimelinePresenter.updateTimeline(getActivity());
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated (View view, Bundle savedInstanceState)");
+    }
+
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG, "onViewStateRestored()");
+    }
+
+    //When presenter initialisation has been completed and fragment is viewable
+    @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume()");
         createHomeTimeline();
     }
 
-    /**
-     * This is the overridden method from the TimelineView so the presenter can display the view
-     * through the interface for the first time
-     *
-     * @param adapter
-     */
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause()");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop()");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView()");
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "onDetach()");
+    }
+
     @Override
     public void displayUserTweetList(ListAdapter adapter) {
         Log.d(TAG, "displayUserTweetList(ListAdapter adapter)");
         setListAdapter(adapter);
     }
 
-    /**
-     * This is the overridden method from the TimelineView so the presenter can update the view
-     * through the interface
-     * @param adapter
-     */
     @Override
     public void updateUserTweetList(ListAdapter adapter) {
         Log.d(TAG, "updateUserTweetList(ListAdapter adapter)");
@@ -169,7 +185,4 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         Log.d(TAG, "getHomeTimelinePresenter()");
         return mHomeTimelinePresenter;
     }
-
-
-
 }
