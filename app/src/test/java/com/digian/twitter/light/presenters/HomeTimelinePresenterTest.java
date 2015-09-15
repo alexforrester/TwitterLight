@@ -1,7 +1,6 @@
 package com.digian.twitter.light.presenters;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ListAdapter;
 
@@ -9,7 +8,6 @@ import com.digian.twitter.light.BuildConfig;
 import com.digian.twitter.light.CustomRobolectricRunner;
 import com.digian.twitter.light.OutlineShadow;
 import com.digian.twitter.light.TestStatusServices;
-import com.digian.twitter.light.views.TimelineView;
 import com.twitter.sdk.android.core.services.StatusesService;
 
 import junit.framework.TestCase;
@@ -17,12 +15,11 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -33,46 +30,43 @@ import static org.mockito.Mockito.verify;
 @Config(constants = BuildConfig.class, shadows = OutlineShadow.class, sdk = Build.VERSION_CODES.LOLLIPOP)
 public class HomeTimelinePresenterTest extends TestCase {
 
-    @Mock
-    private TimelineView mMockTimelineView;
     private HomeTimelinePresenter mClassUnderTest;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        mMockTimelineView = mock(TimelineView.class);
-        mClassUnderTest = HomeTimelineSubPresenter.newInstance(mMockTimelineView);
+        mClassUnderTest = spy(HomeTimelineSubPresenter.newInstance());
     }
 
     @Test
-    public void testPresenterPassesTheAdapterToTheViewToCreate() {
+    public void testObserversNotifiedWhenUserTweetListCreated() {
         mClassUnderTest.createTimeline(RuntimeEnvironment.application);
-        verify(mMockTimelineView,times(1)).displayUserTweetList(any(ListAdapter.class));
+        verify(mClassUnderTest,times(1)).notifyUserTweetListCreated(any(ListAdapter.class));
     }
 
     @Test
-    public void testPresenterPassesTheAdapterToTheViewToUpdate() {
+    public void testObserversNotifiedWhenUserTweetListCreatedUpdated() {
         mClassUnderTest.updateTimeline(RuntimeEnvironment.application);
-        verify(mMockTimelineView,times(1)).updateUserTweetList(any(ListAdapter.class));
+        verify(mClassUnderTest,times(1)).notifyUserTweetListUpdated(any(ListAdapter.class));
     }
 
     @Test
-    public void testPresenterPassesTheExceptionToTheViewToDisplay() {
-        HomeTimelinePresenter homeTimelinePresenter = HomeTimelineSubPresenterFailure.newInstance(mMockTimelineView);
-        homeTimelinePresenter.updateTimeline(RuntimeEnvironment.application);
-        verify(mMockTimelineView,times(1)).displayError(any(String.class));
+    public void testObserversNotifiedWhenThereIsAnException() {
+        mClassUnderTest = spy(HomeTimelineSubPresenterFailure.newInstance());
+        mClassUnderTest.updateTimeline(RuntimeEnvironment.application);
+        verify(mClassUnderTest,times(1)).notifyError(any(String.class));
     }
 
-    private static final class HomeTimelineSubPresenter extends HomeTimelinePresenter {
+    private static class HomeTimelineSubPresenter extends HomeTimelinePresenter {
         private static final String TAG = HomeTimelinePresenter.class.getSimpleName();
 
-        public static HomeTimelineSubPresenter newInstance(@NonNull TimelineView timelineView) {
-            return new HomeTimelineSubPresenter(timelineView);
+        public static HomeTimelineSubPresenter newInstance() {
+            return new HomeTimelineSubPresenter();
         }
 
-        private HomeTimelineSubPresenter(@NonNull TimelineView timelineView) {
-            super(timelineView);
-            Log.d(TAG, "HomeTimelineSubPresenterImpl(@NonNull TimelineView timelineView)");
+        private HomeTimelineSubPresenter() {
+            super();
+            Log.d(TAG, "HomeTimelineSubPresenterImpl()");
         }
 
         @Override
@@ -81,16 +75,16 @@ public class HomeTimelinePresenterTest extends TestCase {
         }
     }
 
-    private static final class HomeTimelineSubPresenterFailure extends HomeTimelinePresenter {
+    private static class HomeTimelineSubPresenterFailure extends HomeTimelinePresenter {
         private static final String TAG = HomeTimelinePresenter.class.getSimpleName();
 
-        public static HomeTimelineSubPresenterFailure newInstance(@NonNull TimelineView timelineView) {
-            return new HomeTimelineSubPresenterFailure(timelineView);
+        public static HomeTimelineSubPresenterFailure newInstance() {
+            return new HomeTimelineSubPresenterFailure();
         }
 
-        private HomeTimelineSubPresenterFailure(@NonNull TimelineView timelineView) {
-            super(timelineView);
-            Log.d(TAG, "HomeTimelineSubPresenterImpl(@NonNull TimelineView timelineView)");
+        private HomeTimelineSubPresenterFailure() {
+            super();
+            Log.d(TAG, "HomeTimelineSubPresenterImpl()");
         }
 
         @Override

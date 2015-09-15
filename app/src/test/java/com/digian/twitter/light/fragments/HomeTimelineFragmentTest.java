@@ -88,7 +88,7 @@ public class HomeTimelineFragmentTest extends TestCase {
         TweetTimelineListAdapter adapter = new TweetTimelineListAdapter(RuntimeEnvironment.application, fixedTweetTimeline);
 
         TimelineView timelineView = ((TimelineView) classUnderTest);
-        timelineView.displayUserTweetList(adapter);
+        timelineView.createAdapter(adapter);
         assertNotNull("adapter should now be not null", classUnderTest.getListAdapter());
     }
 }

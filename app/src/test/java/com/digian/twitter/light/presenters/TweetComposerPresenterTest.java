@@ -48,31 +48,30 @@ public class TweetComposerPresenterTest extends TestCase {
         super.setUp();
         mTweetComposerView = mock(TweetComposerView.class);
         mContext = mock(Context.class);
-        mClassUnderTest = TweetComposerPresenter.newInstance(mTweetComposerView, mContext);
+        mClassUnderTest = TweetComposerPresenter.newInstance(mContext);
         ShadowLog.stream = System.out;
     }
 
     @Test
     public void testNewInstanceAndMembersInitialisedCorrectly() throws Exception {
         assertNotNull("presenter should have been created", mClassUnderTest);
-        assertNotNull("view should have been passed in correctly and set", mClassUnderTest.getTweetComposerView());
-        assertNotNull("mContext should have been passed in correctly and set", mClassUnderTest.getmContext());
+        assertNotNull("mContext should have been passed in correctly and set", mClassUnderTest.getContext());
+        assertNotNull("tweet composer observers should be initialised", mClassUnderTest.getTweetComposerObservers());
     }
 
     @Test
-    public void testNewInstanceParametersAreSetAsMembers() throws Exception {
-        assertSame("view passed in should be set as view member", mTweetComposerView, mClassUnderTest.getTweetComposerView());
-        assertSame("mContext passed in should be set as mContext member", mContext, mClassUnderTest.getmContext());
+    public void testNewInstanceParametersIsSetAsMember() throws Exception {
+        assertSame("mContext passed in should be set as mContext member", mContext, mClassUnderTest.getContext());
     }
 
     @Test
     public void testErrorShownIfNoTweetEntered() throws Exception {
 
         final Context contextToRetrieveStrings = RuntimeEnvironment.application;
-        mClassUnderTest = spy(TweetComposerPresenter.newInstance(mTweetComposerView, contextToRetrieveStrings));
+        mClassUnderTest = spy(TweetComposerPresenter.newInstance(contextToRetrieveStrings));
         mClassUnderTest.createTweet("");
 
-        verify(mTweetComposerView,times(1)).tweetError(contextToRetrieveStrings.getString(R.string.tweet_not_entered));
+        verify(mClassUnderTest,times(1)).notifyTweetError(contextToRetrieveStrings.getString(R.string.tweet_not_entered));
         verify(mClassUnderTest, never()).getStatusesService();
     }
 
@@ -80,48 +79,48 @@ public class TweetComposerPresenterTest extends TestCase {
     public void testErrorShownIfTweetExceedsMaxLength() throws Exception {
 
         final Context contextToRetrieveStrings = RuntimeEnvironment.application;
-        mClassUnderTest = spy(TweetComposerPresenter.newInstance(mTweetComposerView, contextToRetrieveStrings));
+        mClassUnderTest = spy(TweetComposerPresenter.newInstance(contextToRetrieveStrings));
         mClassUnderTest.createTweet(TWEET_OVER_140_CHARACTERS_LONG);
 
-        verify(mTweetComposerView,times(1)).tweetError(contextToRetrieveStrings.getString(R.string.tweet_is_too_long));
+        verify(mClassUnderTest,times(1)).notifyTweetError(contextToRetrieveStrings.getString(R.string.tweet_is_too_long));
         verify(mClassUnderTest, never()).getStatusesService();
     }
 
     @Test
-    public void testTweetSentBackToViewAfterBeingSubmitted() throws Exception {
+    public void testObserversNotifiedAfterBeingLegitimateTweetSubmitted() throws Exception {
 
         StatusesService spyStatusServices = spy(new TestStatusServices.TestStatusServiceSuccess());
 
-        mClassUnderTest = spy(TweetComposerPresenterSubImpl.newInstance(mTweetComposerView, mContext));
+        mClassUnderTest = spy(TweetComposerPresenterSubImpl.newInstance(mContext));
         when(mClassUnderTest.getStatusesService()).thenReturn(spyStatusServices);
 
         mClassUnderTest.createTweet(TWEET_MESSAGE_THAT_SHOULD_BE_SENT_TO_VIEW);
 
-        verify(mTweetComposerView,times(1)).tweetSent();
+        verify(mClassUnderTest,times(1)).notifyTweetSent();
     }
 
     @Test
-    public void testTweetExceptionSentBackToViewIfExceptionThrown() throws Exception {
+    public void testObserversNotifiedIfExceptionThrown() throws Exception {
 
         StatusesService spyStatusServices = spy(new TestStatusServices.TestStatusServiceFailure());
 
-        mClassUnderTest = spy(TweetComposerPresenterSubImpl.newInstance(mTweetComposerView, mContext));
+        mClassUnderTest = spy(TweetComposerPresenterSubImpl.newInstance(mContext));
         when(mClassUnderTest.getStatusesService()).thenReturn(spyStatusServices);
 
         mClassUnderTest.createTweet(TWEET_MESSAGE_THAT_SHOULD_BE_SENT_TO_VIEW);
 
-        verify(mTweetComposerView,times(1)).tweetError(TestStatusServices.SOME_TWITTER_EXCEPTION);
+        verify(mClassUnderTest,times(1)).notifyTweetError(TestStatusServices.SOME_TWITTER_EXCEPTION);
     }
 
     private static class TweetComposerPresenterSubImpl extends TweetComposerPresenter {
         private static final String TAG = HomeTimelinePresenter.class.getSimpleName();
 
-        public static TweetComposerPresenterSubImpl newInstance(@NonNull TweetComposerView tweetComposerView, @NonNull Context context) {
-            return new TweetComposerPresenterSubImpl(tweetComposerView, context);
+        public static TweetComposerPresenterSubImpl newInstance(@NonNull Context context) {
+            return new TweetComposerPresenterSubImpl(context);
         }
 
-        TweetComposerPresenterSubImpl(@NonNull TweetComposerView tweetComposerView,@NonNull Context context  ) {
-            super(tweetComposerView,context);
+        TweetComposerPresenterSubImpl(@NonNull Context context  ) {
+            super(context);
             Log.d(TAG, "TweetComposerPresenterSubImpl(@NonNull TweetComposerView mTweetComposerView,@NonNull Context mContext ");
         }
 

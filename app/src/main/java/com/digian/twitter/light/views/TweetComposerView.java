@@ -5,6 +5,6 @@ package com.digian.twitter.light.views;
  * interface Presenter users to communicate with the view (fragment)
  */
 public interface TweetComposerView {
-    void tweetSent();
-    void tweetError(String string);
+    void displayUpdatedTimeline();
+    void displayError(String string);
 }

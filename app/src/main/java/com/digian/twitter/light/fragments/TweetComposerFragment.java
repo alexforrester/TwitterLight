@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.digian.twitter.light.R;
 import com.digian.twitter.light.TweetComposerCallback;
+import com.digian.twitter.light.observers.TweetComposerObserver;
 import com.digian.twitter.light.presenters.TweetComposerPresenter;
 import com.digian.twitter.light.views.TweetComposerView;
 
@@ -28,7 +29,7 @@ import butterknife.OnClick;
  *
  * UI with associated functionality to send a tweet
  */
-public class TweetComposerFragment extends Fragment implements TweetComposerView {
+public class TweetComposerFragment extends Fragment implements TweetComposerObserver, TweetComposerView {
 
     private static final String TAG = TweetComposerFragment.class.getSimpleName();
 
@@ -42,7 +43,6 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
     public static TweetComposerFragment newInstance() {
         return new TweetComposerFragment();
     }
-
     /**
      * Set-up
      */
@@ -51,7 +51,8 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate(Bundle savedInstanceState)");
 
-        mTweetComposerPresenter = TweetComposerPresenter.newInstance(this, getActivity());
+        mTweetComposerPresenter = TweetComposerPresenter.newInstance(getActivity());
+        mTweetComposerPresenter.registerObserver(this);
     }
 
     @Override
@@ -121,6 +122,7 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
         super.onDestroyView();
         Log.d(TAG, "onDestroyView()");
         ButterKnife.unbind(this);
+        mTweetComposerPresenter.removeObserver(this);
     }
 
     @Override
@@ -137,11 +139,21 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
 
     @Override
     public void tweetSent() {
-        mTweetComposerCallback.showUpdatedTimeline();
+        displayUpdatedTimeline();
     }
 
     @Override
     public void tweetError(String error) {
+        displayError(error);
+    }
+
+    @Override
+    public void displayUpdatedTimeline() {
+        mTweetComposerCallback.showUpdatedTimeline();
+    }
+
+    @Override
+    public void displayError(String error) {
         displayToast(error);
     }
 
@@ -179,4 +191,5 @@ public class TweetComposerFragment extends Fragment implements TweetComposerView
     void setmTweetComposerCallback(TweetComposerCallback mTweetComposerCallback) {
         this.mTweetComposerCallback = mTweetComposerCallback;
     }
+
 }

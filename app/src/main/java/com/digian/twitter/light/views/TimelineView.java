@@ -7,7 +7,7 @@ import android.widget.ListAdapter;
  * interface Presenter users to communicate with the view (fragment)
  */
 public interface TimelineView {
-    void displayUserTweetList(ListAdapter adapter);
-    void updateUserTweetList(ListAdapter adapter);
+    void createAdapter(ListAdapter adapter);
+    void updateAdapter(ListAdapter adapter);
     void displayError(String string);
 }

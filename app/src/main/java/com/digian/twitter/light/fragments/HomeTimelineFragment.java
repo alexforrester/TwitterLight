@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.digian.twitter.light.R;
 import com.digian.twitter.light.TweetComposerCallback;
+import com.digian.twitter.light.observers.TimelineObserver;
 import com.digian.twitter.light.presenters.HomeTimelinePresenter;
 import com.digian.twitter.light.views.TimelineView;
 import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
@@ -28,7 +29,7 @@ import butterknife.OnClick;
  * Display with user's home timeline with the option to refresh and tweet
  *
  */
-public class HomeTimelineFragment extends ListFragment implements TimelineView {
+public class HomeTimelineFragment extends ListFragment implements TimelineObserver, TimelineView {
 
     private static final String TAG = HomeTimelineFragment.class.getSimpleName();
 
@@ -77,7 +78,8 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate(Bundle savedInstanceState) " + savedInstanceState);
 
-        mHomeTimelinePresenter = HomeTimelinePresenter.newInstance(this);
+        mHomeTimelinePresenter = HomeTimelinePresenter.newInstance();
+        mHomeTimelinePresenter.registerObserver(this);
     }
 
     @Override
@@ -139,6 +141,7 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView()");
         ButterKnife.unbind(this);
+        mHomeTimelinePresenter.removeObserver(this);
     }
 
     @Override
@@ -154,14 +157,26 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     }
 
     @Override
-    public void displayUserTweetList(ListAdapter adapter) {
-        Log.d(TAG, "displayUserTweetList(ListAdapter adapter)");
-        setListAdapter(adapter);
+    public void createUserTweetList(ListAdapter adapter) {
+        Log.d(TAG, "createUserTweetList(ListAdapter adapter)");
+        createAdapter(adapter);
     }
 
     @Override
     public void updateUserTweetList(ListAdapter adapter) {
-        Log.d(TAG, "updateUserTweetList(ListAdapter adapter)");
+        Log.d(TAG, "updateUserTweetList(ListAdapter adapter) ");
+        updateAdapter(adapter);
+    }
+
+    @Override
+    public void createAdapter(ListAdapter adapter) {
+        Log.d(TAG, "createAdapter(ListAdapter adapter)");
+        setListAdapter(adapter);
+    }
+
+    @Override
+    public void updateAdapter(ListAdapter adapter) {
+        Log.d(TAG, "updateAdapter(ListAdapter adapter)");
         setListAdapter(adapter);
 
         TweetTimelineListAdapter tweetTimelineListAdapter = (TweetTimelineListAdapter) getListAdapter();
@@ -172,6 +187,12 @@ public class HomeTimelineFragment extends ListFragment implements TimelineView {
     public void displayError(String error) {
         Log.d(TAG, "Display Error: " + error);
         Toast.makeText(getActivity(),error,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void processError(String error) {
+        Log.d(TAG, "processError: " + error);
+        displayError(error);
     }
 
     @VisibleForTesting
